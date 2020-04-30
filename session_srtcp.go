@@ -72,13 +72,13 @@ func NewSessionSRTCP(conn net.Conn, config *Config) (*SessionSRTCP, error) {
 }
 
 // OpenWriteStream returns the global write stream for the Session
-func (s *SessionSRTCP) OpenWriteStream() (*WriteStreamSRTCP, error) {
+func (s *SessionSRTCP) OpenWriteStream() (rtcp.WriteStream, error) {
 	return s.writeStream, nil
 }
 
 // OpenReadStream opens a read stream for the given SSRC, it can be used
 // if you want a certain SSRC, but don't want to wait for AcceptStream
-func (s *SessionSRTCP) OpenReadStream(SSRC uint32) (*ReadStreamSRTCP, error) {
+func (s *SessionSRTCP) OpenReadStream(SSRC uint32) (rtcp.ReadStream, error) {
 	r, _ := s.session.getOrCreateReadStream(SSRC, s, newReadStreamSRTCP)
 
 	if readStream, ok := r.(*ReadStreamSRTCP); ok {
@@ -88,7 +88,7 @@ func (s *SessionSRTCP) OpenReadStream(SSRC uint32) (*ReadStreamSRTCP, error) {
 }
 
 // AcceptStream returns a stream to handle RTCP for a single SSRC
-func (s *SessionSRTCP) AcceptStream() (*ReadStreamSRTCP, uint32, error) {
+func (s *SessionSRTCP) AcceptStream() (rtcp.ReadStream, uint32, error) {
 	stream, ok := <-s.newStream
 	if !ok {
 		return nil, 0, fmt.Errorf("SessionSRTCP has been closed")
